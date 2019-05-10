@@ -74,6 +74,8 @@ abstract class Agent {
         private final Handler handler;
         private boolean writerClosed = false;
 
+        // for sound message
+
         CommThread(BluetoothSocket sock, Handler handler) throws IOException {
             if (!sock.isConnected()) {
                 throw new IOException("Socket is not connected");

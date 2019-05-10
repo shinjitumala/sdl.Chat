@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView logview;
     private EditText input;
     private Button button;
+    private Button sound_button;
 
     private final ArrayList<ChatMessage> chatLog = new ArrayList<>();
     private ArrayAdapter<ChatMessage> chatLogAdapter;
@@ -63,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
     private SoundPlayer soundPlayer;
     private BluetoothInitializer initializer;
 
+    // for sound button
+    MediaPlayer sound_player;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +78,9 @@ public class MainActivity extends AppCompatActivity {
         progress = findViewById(R.id.main_progress);
         input = findViewById(R.id.main_input);
         button = findViewById(R.id.main_button);
+
+        sound_button = findViewById(R.id.sound_button);
+        sound_player = MediaPlayer.create(this, R.raw.nhk_woodblock2);
 
         chatLogAdapter = new ArrayAdapter<ChatMessage>(this, 0, chatLog) {
             @Override
@@ -228,12 +236,22 @@ public class MainActivity extends AppCompatActivity {
         }
         messageSeq++;
         long time = System.currentTimeMillis();
-        ChatMessage message = new ChatMessage(messageSeq, time, content, adapter.getName());
+        ChatMessage message = new ChatMessage(messageSeq, time, content, adapter.getName(), 0);
         agent.send(message);
         chatLogAdapter.add(message);
         chatLogAdapter.notifyDataSetChanged();
         logview.smoothScrollToPosition(chatLog.size());
         input.getEditableText().clear();
+    }
+
+    // event handler for the send sound button
+    public void onClickSoundButton(View v){
+        Log.d(TAG, "onClickSoundButton");
+
+        messageSeq++;
+        long time = System.currentTimeMillis();
+        ChatMessage message = new ChatMessage(messageSeq, time, "!!?!", adapter.getName(), 1);
+        agent.send(message);
     }
 
     public void setState(State state) {
@@ -244,6 +262,7 @@ public class MainActivity extends AppCompatActivity {
         this.state = state;
         input.setEnabled(state == State.Connected);
         button.setEnabled(state == State.Connected);
+        sound_button.setEnabled(state == State.Connected);
         switch (state) {
         case Initializing:
         case Disconnected:
@@ -268,6 +287,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showMessage(ChatMessage message) {
+        // play sound
+        if(message.sound == 1){
+            sound_player.start();
+            return;
+        }
+
         chatLogAdapter.add(message);
         chatLogAdapter.notifyDataSetChanged();
         logview.smoothScrollToPosition(chatLogAdapter.getCount());
