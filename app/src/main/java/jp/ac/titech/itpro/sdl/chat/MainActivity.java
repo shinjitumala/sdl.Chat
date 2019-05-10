@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         button = findViewById(R.id.main_button);
 
         sound_button = findViewById(R.id.sound_button);
-        sound_player = MediaPlayer.create(this, R.raw.nhk_woodblock2);
+        sound_player = MediaPlayer.create(this, R.raw.leory);
 
         chatLogAdapter = new ArrayAdapter<ChatMessage>(this, 0, chatLog) {
             @Override
@@ -287,6 +287,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showMessage(ChatMessage message) {
+        Log.d(TAG, "sound: " + message.sound);
         // play sound
         if(message.sound == 1){
             sound_player.start();
